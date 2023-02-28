@@ -5,10 +5,11 @@ import os
 from pathlib import Path
 
 import imagehash
-from PIL import Image
+from PIL import Image, ImageFile
 from pillow_heif import register_heif_opener
 from tqdm import tqdm
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 register_heif_opener()
 
 
