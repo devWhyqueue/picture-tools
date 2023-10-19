@@ -12,7 +12,7 @@ def test_hash_files_on_empty_folder(tmp_path):
     assert file_hashes == {}
 
 
-def test_hash_files_on_non_empty_folder_first_run(tmp_path):
+def test_hash_files_on_non_empty_folder(tmp_path):
     # Given
     (tmp_path / 'file1.txt').touch()
     (tmp_path / 'file2.txt').touch()
@@ -28,6 +28,24 @@ def test_hash_files_on_non_empty_folder_first_run(tmp_path):
 
     # Then
     assert file_hashes == {tmp_path / 'file1.txt': 'hash1', tmp_path / 'file2.txt': 'hash2'}
+
+
+def test_hash_files_with_none_hashes(tmp_path):
+    # Given
+    (tmp_path / 'file1.txt').touch()
+    (tmp_path / 'problematic_image.jpg').touch()
+    hasher = PicklingFileHasher(tmp_path)
+
+    with patch('pickle.load', return_value={}):
+        with patch('pickle.dump'):
+            with patch('dupfind.hashing.Pool') as mock_pool:
+                mock_pool.return_value.__enter__.return_value \
+                    .imap.return_value = [(tmp_path / 'file1.txt', 'hash1'), (tmp_path / 'file1.txt', None)]
+                # When
+                file_hashes = hasher.hash_files()
+
+    # Then
+    assert file_hashes == {tmp_path / 'file1.txt': 'hash1'}
 
 
 def test_hash_files_on_adding_new_files(tmp_path):

@@ -44,13 +44,13 @@ def test_hash_file_non_image_file():
 def test_hash_file_unidentified_image_error():
     with patch('dupfind.hashing.Image.open', side_effect=UnidentifiedImageError):
         result = hashing.hash_file(Path('bad_image.jpg'))
-    assert result is None
+    assert result == (Path('bad_image.jpg'), None)
 
 
 def test_hash_file_permission_error():
     with patch('dupfind.hashing.Image.open', side_effect=PermissionError):
         result = hashing.hash_file(Path('restricted.jpg'))
-    assert result is None
+    assert result == (Path('restricted.jpg'), None)
 
 
 def test__hash_file():

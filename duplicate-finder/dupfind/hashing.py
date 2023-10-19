@@ -42,7 +42,7 @@ class PicklingFileHasher:
             pickle.dump(file_hashes, f)
 
 
-def hash_file(file) -> tuple[Path, str] | None:
+def hash_file(file):
     try:
         if file.suffix.lower() in ('.jpg', '.jpeg', '.png', '.gif', '.heic'):
             file_hash = imagehash.phash(Image.open(file))
@@ -50,7 +50,7 @@ def hash_file(file) -> tuple[Path, str] | None:
             file_hash = _hash_file(file)
         return file, str(file_hash)
     except (UnidentifiedImageError, PermissionError):
-        return None
+        return file, None
 
 
 def _hash_file(file):
