@@ -15,7 +15,7 @@ class PicklingFileHasher:
 
     def hash_files(self) -> dict[Path, str]:
         file_hashes = self._load_existing_hashes()
-        all_files = list(Path(self.folder).rglob('*'))
+        all_files = set(Path(self.folder).rglob('*'))
         new_files = [f for f in all_files if f not in file_hashes]
 
         with Pool(cpu_count() - 1) as pool:
