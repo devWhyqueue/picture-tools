@@ -18,7 +18,7 @@ class PicklingFileHasher:
         all_files = list(Path(self.folder).rglob('*'))
         new_files = [f for f in all_files if f not in file_hashes]
 
-        with Pool(cpu_count() // 2) as pool:
+        with Pool(cpu_count() - 1) as pool:
             new_hashes = list(
                 tqdm(pool.imap(hash_file, new_files), total=len(new_files), desc=f'Hashing {self.folder}'))
 
