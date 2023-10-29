@@ -10,7 +10,11 @@ def remove_files_in_a_which_exist_in_b(file_hashes_folder_a, file_hashes_folder_
     removed = 0
     for path_a, hash_str_a in tqdm(file_hashes_folder_a.items(), total=len(file_hashes_folder_a), desc='Removing'):
         if hash_str_a in groups_folder_b:
-            os.remove(path_a) if not dry_run else print(f'Would remove {path_a}.')
+            if not dry_run:
+                os.remove(path_a)
+            else:
+                paths_b = [path.resolve().as_posix() for path, _hash in groups_folder_b[hash_str_a]]
+                print(f'Would remove {path_a.resolve().as_posix()} as it exists in dir_b: {paths_b}')
             removed += 1
     return removed
 
