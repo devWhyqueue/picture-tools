@@ -4,8 +4,10 @@ from multiprocessing import Pool, cpu_count
 from pathlib import Path
 
 import imagehash
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, UnidentifiedImageError, ImageFile
 from tqdm import tqdm
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class PicklingFileHasher:
