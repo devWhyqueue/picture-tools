@@ -21,7 +21,11 @@ def remove_duplicates(file_hashes: dict[Path, str], dry_run=False):
     for f_hashes in tqdm(groups.values(), total=len(groups), desc='Removing'):
         if len(f_hashes) > 1:
             for f_hash in f_hashes[1:]:
-                os.remove(f_hash[0]) if not dry_run else print(f'Would remove {f_hash[0]}.')
+                if not dry_run:
+                    os.remove(f_hash[0])
+                else:
+                    paths = [path.resolve().as_posix() for path, _hash in f_hashes]
+                    print(f'Would remove {f_hash[0].resolve().as_posix()} from group {paths}.')
                 removed += 1
     return removed
 
