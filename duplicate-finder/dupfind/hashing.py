@@ -21,7 +21,7 @@ class PicklingFileHasher:
 
     def hash_files(self) -> dict[Path, str]:
         file_hashes = self._load_existing_hashes()
-        all_files = set(filter(lambda p: not _hidden_or_system(str(p)), Path(self.folder).rglob('*')))
+        all_files = set(filter(lambda p: not _hidden_or_system_parents(p), Path(self.folder).rglob('*')))
         new_files = [f for f in all_files if f not in file_hashes]
 
         with Pool(cpu_count() - 1) as pool:
@@ -65,6 +65,13 @@ def _hash_file(file):
         while chunk := f.read(4096):
             sha256.update(chunk)
     return sha256.hexdigest()
+
+
+def _hidden_or_system_parents(path: Path):
+    for parent in path.parents:
+        if _hidden_or_system(str(parent)):
+            return True
+    return False
 
 
 def _hidden_or_system(path: str):
