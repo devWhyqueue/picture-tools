@@ -60,3 +60,22 @@ def test__hash_file():
     sha256 = hashlib.sha256()
     sha256.update(b'data')
     assert result == sha256.hexdigest()
+
+
+@patch('dupfind.hashing.os')
+@patch('dupfind.hashing.win32con')
+@patch('dupfind.hashing.win32api')
+def test_hidden_or_system_windows(mock_win32api, mock_win32con, mock_os):
+    mock_os.name = 'nt'
+    mock_win32api.GetFileAttributes.return_value = 2
+    mock_win32con.FILE_ATTRIBUTE_HIDDEN = 2
+    mock_win32con.FILE_ATTRIBUTE_SYSTEM = 4
+
+    assert hashing._hidden_or_system("C:\\hidden_file") == 2
+
+
+def test_hidden_or_system_non_windows():
+    with patch('dupfind.hashing.os') as mock_os:
+        mock_os.name = 'posix'
+        assert hashing._hidden_or_system(".hidden_file") is True
+        assert hashing._hidden_or_system("visible_file") is False

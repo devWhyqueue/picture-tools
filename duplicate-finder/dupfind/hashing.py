@@ -1,4 +1,5 @@
 import hashlib
+import os
 import pickle
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
@@ -6,6 +7,9 @@ from pathlib import Path
 import imagehash
 from PIL import Image, UnidentifiedImageError, ImageFile
 from tqdm import tqdm
+
+if os.name == 'nt':
+    import win32api, win32con
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -17,7 +21,7 @@ class PicklingFileHasher:
 
     def hash_files(self) -> dict[Path, str]:
         file_hashes = self._load_existing_hashes()
-        all_files = set(Path(self.folder).rglob('*'))
+        all_files = set(filter(lambda p: not _hidden_or_system(str(p)), Path(self.folder).rglob('*')))
         new_files = [f for f in all_files if f not in file_hashes]
 
         with Pool(cpu_count() - 1) as pool:
@@ -61,3 +65,11 @@ def _hash_file(file):
         while chunk := f.read(4096):
             sha256.update(chunk)
     return sha256.hexdigest()
+
+
+def _hidden_or_system(path: str):
+    if os.name == 'nt':
+        attribute = win32api.GetFileAttributes(path)
+        return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+    else:
+        return path.startswith('.')  # linux-osx
