@@ -10,7 +10,6 @@ ImageHash = "^4.3.1"
 Pillow = "^10.1.0"
 pillow-heif = "^0.13.1"
 tqdm = "^4.66.1"
-pywin32 = "^306"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.2"

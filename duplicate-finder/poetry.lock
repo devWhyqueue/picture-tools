@@ -127,14 +127,6 @@ python-versions = ">=3.8"
 numpy = ">=1.17.3"
 
 [[package]]
-name = "pywin32"
-version = "306"
-description = "Python for Window Extensions"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "scipy"
 version = "1.9.3"
 description = "Fundamental algorithms for scientific computing in Python"
@@ -178,7 +170,7 @@ telegram = ["requests"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "afe7187162536009f936e8f605c1f42e9fe5ea0647216b0bf14c599efa8c9ff4"
+content-hash = "b8b6bb2b72034db33935e4d847dde153f9e112c7065a2aab43e4ce0636cd1fdd"
 
 [metadata.files]
 colorama = []
@@ -192,7 +184,6 @@ pillow-heif = []
 pluggy = []
 pytest = []
 pywavelets = []
-pywin32 = []
 scipy = []
 tomli = []
 tqdm = []

@@ -1,5 +1,4 @@
 import hashlib
-import os
 import pickle
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
@@ -8,20 +7,19 @@ import imagehash
 from PIL import Image, UnidentifiedImageError, ImageFile
 from tqdm import tqdm
 
-if os.name == 'nt':
-    import win32api, win32con
-
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class PicklingFileHasher:
+    excluded_folders = {'$RECYCLE.BIN', 'System Volume Information', 'Boot', 'Recovery'}
+
     def __init__(self, folder: Path):
         self.folder = folder
         self.pickle_file = self.folder / '.hashes.pkl'
 
     def hash_files(self) -> dict[Path, str]:
         file_hashes = self._load_existing_hashes()
-        all_files = set(filter(lambda p: not _hidden_or_system_parents(p), Path(self.folder).rglob('*')))
+        all_files = set(filter(lambda p: not PicklingFileHasher._in_excluded_folder(p), Path(self.folder).rglob('*')))
         new_files = [f for f in all_files if f not in file_hashes]
 
         with Pool(cpu_count() - 1) as pool:
@@ -36,6 +34,13 @@ class PicklingFileHasher:
 
         self._save_hashes(file_hashes)
         return file_hashes
+
+    @classmethod
+    def _in_excluded_folder(cls, path: Path):
+        for parent in path.parents:
+            if parent.name in cls.excluded_folders:
+                return True
+        return False
 
     def _load_existing_hashes(self) -> dict[Path, str]:
         if self.pickle_file.exists():
@@ -65,18 +70,3 @@ def _hash_file(file):
         while chunk := f.read(4096):
             sha256.update(chunk)
     return sha256.hexdigest()
-
-
-def _hidden_or_system_parents(path: Path):
-    for parent in path.parents:
-        if _hidden_or_system(str(parent)):
-            return True
-    return False
-
-
-def _hidden_or_system(path: str):
-    if os.name == 'nt':
-        attribute = win32api.GetFileAttributes(path)
-        return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
-    else:
-        return path.startswith('.')  # linux-osx
