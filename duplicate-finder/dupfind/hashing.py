@@ -11,6 +11,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class PicklingFileHasher:
+    excluded_files = {'.hashes.pkl'}
     excluded_folders = {'$RECYCLE.BIN', 'System Volume Information', 'Boot', 'Recovery'}
 
     def __init__(self, folder: Path):
@@ -19,7 +20,9 @@ class PicklingFileHasher:
 
     def hash_files(self) -> dict[Path, str]:
         file_hashes = self._load_existing_hashes()
-        all_files = set(filter(lambda p: not PicklingFileHasher._in_excluded_folder(p), Path(self.folder).rglob('*')))
+        all_files = set(filter(
+            lambda p: not PicklingFileHasher._in_excluded_folder(p) and p not in PicklingFileHasher.excluded_files,
+            Path(self.folder).rglob('*')))
         new_files = [f for f in all_files if f not in file_hashes]
 
         with Pool(cpu_count() - 1) as pool:
